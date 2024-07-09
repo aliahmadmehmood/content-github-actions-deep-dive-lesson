@@ -68,3 +68,19 @@ jobs:
         asset_path: ./${{ github.sha }}.zip
         asset_name: source_code_with_libraries.zip
         asset_content_type: application/zip
+  upload:
+    runs-on: ubuntu-lastest
+    needs: build
+    steps:
+        - name: Download artifact
+          uses: actions/download-artifact@v2
+          with:
+            name: zipped-bundle
+        - name: AWS
+          uses: aws-actions/configure-aws-credentials@v1
+          with:
+             aws-access-key-id: ${{ secret.aws_key }}
+             aws-secret-access-key: ${{ secret.aws_secret_key }}
+        - name: Upload to s3
+          run: aws s3 cp ${{ github.sha }}.zip s3://aliahmad-git-test/${{ github.sha }}.zip
+        
